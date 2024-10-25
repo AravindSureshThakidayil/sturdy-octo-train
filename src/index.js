@@ -4,18 +4,9 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import './index.css';
 import App from './App';
 import ReceptionistPage from "./pages/receptionist";
+import PharmacyPage from "./pages/pharmacy"; // Import the PharmacyPage component
 import reportWebVitals from './reportWebVitals';
 import DoctorDashboard from './pages/doctor';
-export default function Router() {
-  // return (
-  //   <BrowserRouter>
-  //     <Routes>
-  //       <Route index element=<App></App>></Route>
-  //       <Route path="/reception" element=<ReceptionistPage/>></Route>
-  //     </Routes>
-  //   </BrowserRouter>
-  // )
-}
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
@@ -25,6 +16,7 @@ root.render(
         <Route path="/" element={<App />} />
         <Route path="/reception" element={<ReceptionistPage />} />
         <Route path="/doctor" element={<DoctorDashboard />} />
+        <Route path="/pharmacy" element={<PharmacyPage />} /> {/* Add the route for PharmacyPage */}
       </Routes>
     </BrowserRouter>
   </React.StrictMode>
