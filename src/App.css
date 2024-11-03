@@ -80,6 +80,7 @@
   padding: 1vh 2vw;
   transition: linear 1s ease;
   margin-top: 10vh;
+  margin-left: 10vh;
 }
 
 .login-page .login-button:hover {

@@ -22,13 +22,13 @@ export default function PharmacyPage() {
     if (medicine.quantity > 0) {
       const existingItem = cart.find(item => item.id === medicine.id);
       if (existingItem) {
-        setCart(cart.map(item => 
+        setCart(cart.map(item =>
           item.id === medicine.id ? { ...item, quantity: item.quantity + 1 } : item
         ));
       } else {
         setCart([...cart, { ...medicine, quantity: 1 }]);
       }
-      setStock(stock.map(item => 
+      setStock(stock.map(item =>
         item.id === medicine.id ? { ...item, quantity: item.quantity - 1 } : item
       ));
     }
@@ -39,16 +39,16 @@ export default function PharmacyPage() {
     if (existingItem.quantity === 1) {
       setCart(cart.filter(item => item.id !== medicineId));
     } else {
-      setCart(cart.map(item => 
+      setCart(cart.map(item =>
         item.id === medicineId ? { ...item, quantity: item.quantity - 1 } : item
       ));
     }
-    setStock(stock.map(item => 
+    setStock(stock.map(item =>
       item.id === medicineId ? { ...item, quantity: item.quantity + 1 } : item
     ));
   };
 
-  const filteredStock = stock.filter(medicine => 
+  const filteredStock = stock.filter(medicine =>
     medicine.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -73,7 +73,7 @@ export default function PharmacyPage() {
   return (
     <div className="pharmacy-page">
       <h1>Pharmacy </h1>
-      
+
       <div className="content">
         <div className="stock-section">
           <h2>Stock</h2>
@@ -105,9 +105,9 @@ export default function PharmacyPage() {
                     </span>
                     {medicine.quantity <= 50 && <span className="warning">⚠️</span>}
                   </td>
-                  <td>${medicine.price}</td>
+                  <td>₹{medicine.price}</td>
                   <td>
-                    <button 
+                    <button
                       onClick={() => addToCart(medicine)}
                       disabled={medicine.quantity === 0}
                       className="add-button"
@@ -129,13 +129,13 @@ export default function PharmacyPage() {
               <div key={item.id} className="cart-item">
                 <span>{item.name} (x{item.quantity})</span>
                 <div>
-                  <button 
+                  <button
                     onClick={() => removeFromCart(item.id)}
                     className="remove-button"
                   >
                     -
                   </button>
-                  <button 
+                  <button
                     onClick={() => addToCart(item)}
                     disabled={stock.find(m => m.id === item.id).quantity === 0}
                     className="add-button"
@@ -146,7 +146,7 @@ export default function PharmacyPage() {
               </div>
             ))}
           </div>
-          <div className="total-bill">Total: ${totalBill}</div>
+          <div className="total-bill">Total: ₹{totalBill}</div>
           <div className="purchase-date">
             <span>📅</span>
             <input
@@ -155,7 +155,7 @@ export default function PharmacyPage() {
               onChange={(e) => setPurchaseDate(e.target.value)}
             />
           </div>
-          <button 
+          <button
             onClick={completePurchase}
             disabled={cart.length === 0}
             className="complete-purchase-button"
@@ -187,7 +187,7 @@ export default function PharmacyPage() {
                     </div>
                   ))}
                 </td>
-                <td>${purchase.totalPrice}</td>
+                <td>₹{purchase.totalPrice}</td>
               </tr>
             ))}
           </tbody>
