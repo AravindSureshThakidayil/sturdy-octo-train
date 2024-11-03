@@ -61,7 +61,7 @@ const DoctorDashboard = () => {
                         <section className="patient-info">
                             <h2>Patient Information</h2>
                             <p><strong>Name:</strong> {patientInfo.patient_name.toString()}</p>
-                            <p><strong>DOB:</strong> {patientInfo.patient_dob.toString()}</p>
+                            <p><strong>Age:</strong> {patientInfo.patient_dob.toString()}</p>
                             <p><strong>Gender:</strong> {patientInfo.patient_sex.toString()}</p>
                             <p><strong>Last Visit:</strong> {Date(patientInfo.patient_date_registration).toString()}</p>
                         </section>

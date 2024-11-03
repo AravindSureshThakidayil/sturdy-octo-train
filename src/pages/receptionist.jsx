@@ -4,14 +4,14 @@ import "../styles/receptionist.css";
 import { ReactDialogBox } from 'react-js-dialog-box';
 import 'react-js-dialog-box/dist/index.css';
 import db from "../firebase_config.jsx";
-import { collection, doc, setDoc, getDocs, getCountFromServer } from 'firebase/firestore';
+import { collection, doc, setDoc, getDocs, deleteDoc, getCountFromServer } from 'firebase/firestore';
 
 const ReceptionistPage = () => {
   // const fireSQL = new FireSQL(db);
   var docRef = collection(db, "patients");
 
   const [patients, setPatients] = useState([]);
-  const [currentPatient, setCurrentPatient] = useState({ id: 0, name: '', age: '', gender: '', contact: '' });
+  const [currentPatient, setCurrentPatient] = useState({ id: 0, name: '', dob: '', gender: '', contact: '' });
   const [isEditing, setIsEditing] = useState(false);
   const [isDialogBox, setDialogBox] = useState(false);
 
@@ -23,7 +23,7 @@ const ReceptionistPage = () => {
         patients = [...patients, {
           id: doc.id,
           name: doc.data().patient_name,
-          age: Math.floor(Math.abs(doc.data().patient_dob.seconds * 1000 - Date.now()) / (1000 * 3600 * 24 * 365.25)).toString(),
+          dob: doc.data().patient_dob,
           gender: doc.data().patient_sex,
           contact: '0000'
         }];
@@ -42,7 +42,7 @@ const ReceptionistPage = () => {
     await setDoc(doc(db, "patients", "" + docid), {
       patient_date_registration: Date.now(),
       patient_name: currentPatient.name,
-      patient_dob: 'January 1, 2005 at 12:00:00 AM UTC+5:30',
+      patient_dob: currentPatient.dob,
       patient_sex: currentPatient.gender[0].toLowerCase()
     });
   }
@@ -55,7 +55,7 @@ const ReceptionistPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     await modifyPatientInDb();
-    setCurrentPatient({ id: 0, name: '', age: '', gender: '', contact: '' });
+    setCurrentPatient({ id: 0, name: '', dob: '', gender: '', contact: '' });
     setIsEditing(false);
     setDialogBox(false);
     getPatientsFromDb();
@@ -72,11 +72,17 @@ const ReceptionistPage = () => {
     getPatientsFromDb();
   };
 
-  const handleDelete = (id) => {
-    setPatients(patients.filter(p => p.id !== id));
+  const handleDelete = async (id) => {
+    if (window.confirm("You are about to delete a patient's record from the database. This can't be undone.") == true) {
+      deleteDoc(doc(db, "patients", "" + id));
+    } else {}
   };
 
   getPatientsFromDb();
+
+  const getAge = (dob) => {
+    
+  }
 
   return (
     <div className="receptionist-page">
@@ -112,12 +118,12 @@ const ReceptionistPage = () => {
                   />
                 </div>
                 <div className="form-group">
-                  <label htmlFor="age">Age:</label>
+                  <label htmlFor="age">DoB:</label>
                   <input
-                    type="number"
-                    id="age"
-                    name="age"
-                    value={currentPatient.age}
+                    type="date"
+                    id="dob"
+                    name="dob"
+                    value={currentPatient.dob}
                     onChange={handleInputChange}
                     required
                   />
@@ -168,7 +174,7 @@ const ReceptionistPage = () => {
               {patients.map(patient => (
                 <tr key={patient.id}>
                   <td>{patient.name}</td>
-                  <td>{patient.age}</td>
+                  <td>{getAge(patient.dob)}</td>
                   <td>{patient.gender}</td>
                   <td>{patient.contact}</td>
                   <td>
