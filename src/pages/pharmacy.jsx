@@ -203,11 +203,11 @@ export default function PharmacyPage() {
                 <div key={item.id} className="popup-cart-item">
                   <span>{item.name}</span>
                   <span>x{item.quantity}</span>
-                  <span>${item.price * item.quantity}</span>
+                  <span>₹{item.price * item.quantity}</span>
                 </div>
               ))}
             </div>
-            <div className="popup-total">Total: ${totalBill}</div>
+            <div className="popup-total">Total: ₹{totalBill}</div>
             <div className="popup-buttons">
               <button onClick={confirmPurchase} className="confirm-button">Confirm</button>
               <button onClick={() => setShowPopup(false)} className="cancel-button">Cancel</button>
