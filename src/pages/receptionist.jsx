@@ -1,65 +1,78 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import "../styles/master.css";
 import "../styles/receptionist.css";
 import { ReactDialogBox } from 'react-js-dialog-box';
 import 'react-js-dialog-box/dist/index.css';
 import db from "../firebase_config.jsx";
-import { collection, doc, setDoc, getDocs, deleteDoc, getCountFromServer } from 'firebase/firestore';
+import { collection, doc, setDoc, getDocs, deleteDoc } from 'firebase/firestore';
 
 const ReceptionistPage = () => {
-  // const fireSQL = new FireSQL(db);
-  var docRef = collection(db, "patients");
+  const docRef = collection(db, "patients");
 
   const [patients, setPatients] = useState([]);
   const [currentPatient, setCurrentPatient] = useState({ id: 0, name: '', dob: '', gender: '', contact: '' });
   const [isEditing, setIsEditing] = useState(false);
   const [isDialogBox, setDialogBox] = useState(false);
 
+  useEffect(() => {
+    getPatientsFromDb();
+  }, []);
+
   const getPatientsFromDb = async () => {
-    var patients = [];
+    let patients = [];
     try {
       const docs = await getDocs(docRef);
-      docs.forEach(function (doc) {
+      docs.forEach((doc) => {
         patients = [...patients, {
           id: doc.id,
           name: doc.data().patient_name,
           dob: doc.data().patient_dob,
           gender: doc.data().patient_sex,
-          contact: '0000'
+          contact: doc.data().patient_contact || '0000'
         }];
       });
       setPatients(patients);
     } catch (e) {
-      console.log("Firestore error");
+      console.log("Firestore error", e);
     }
-  }
+  };
 
   const modifyPatientInDb = async () => {
-    var docid = currentPatient.id;
+    let docid = currentPatient.id;
     if (!isEditing) {
-      docid = (await getCountFromServer(docRef)).data().count + 1;
+      const newDocRef = doc(docRef); // Automatically generated unique ID
+      docid = newDocRef.id;
     }
-    await setDoc(doc(db, "patients", "" + docid), {
+    await setDoc(doc(db, "patients", docid), {
       patient_date_registration: Date.now(),
       patient_name: currentPatient.name,
       patient_dob: currentPatient.dob,
-      patient_sex: currentPatient.gender[0].toLowerCase()
+      patient_sex: currentPatient.gender[0].toLowerCase() == "m" ? "Male" : currentPatient.gender[0].toLowerCase() == "f" ? "Female" : "Other",
+      patient_contact: currentPatient.contact
     });
-  }
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setCurrentPatient(prev => ({ ...prev, [name]: value }));
+    setCurrentPatient((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Validate the contact number to be exactly 10 digits and numeric
+    if (!/^\d{10}$/.test(currentPatient.contact)) {
+        alert("Please enter a valid 10-digit contact number.");
+        return; // Stop the form submission if validation fails
+    }
+
     await modifyPatientInDb();
     setCurrentPatient({ id: 0, name: '', dob: '', gender: '', contact: '' });
     setIsEditing(false);
     setDialogBox(false);
     getPatientsFromDb();
-  };
+};
+
 
   const handleEdit = (patient) => {
     setCurrentPatient(patient);
@@ -73,16 +86,22 @@ const ReceptionistPage = () => {
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm("You are about to delete a patient's record from the database. This can't be undone.") == true) {
-      deleteDoc(doc(db, "patients", "" + id));
-    } else {}
+    if (window.confirm("You are about to delete a patient's record from the database. This can't be undone.")) {
+      await deleteDoc(doc(db, "patients", id));
+      getPatientsFromDb();
+    }
   };
 
-  getPatientsFromDb();
-
   const getAge = (dob) => {
-    
-  }
+    const birthDate = new Date(dob);
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDifference = today.getMonth() - birthDate.getMonth();
+    if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    return age;
+  };
 
   return (
     <div className="receptionist-page">
@@ -118,7 +137,7 @@ const ReceptionistPage = () => {
                   />
                 </div>
                 <div className="form-group">
-                  <label htmlFor="age">DoB:</label>
+                  <label htmlFor="dob">DoB:</label>
                   <input
                     type="date"
                     id="dob"
@@ -171,7 +190,7 @@ const ReceptionistPage = () => {
               </tr>
             </thead>
             <tbody>
-              {patients.map(patient => (
+              {patients.map((patient) => (
                 <tr key={patient.id}>
                   <td>{patient.name}</td>
                   <td>{getAge(patient.dob)}</td>
