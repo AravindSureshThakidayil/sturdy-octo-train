@@ -25,14 +25,14 @@ const Landing = () => {
           <h1 className='heading'>ABC Hospital Management System</h1>
         </div>
         <button className="login-button" onClick={handleLogin}>
-          <Link to="/reception">Receptionist</Link>
+          <Link to="/receptionistlogin">Receptionist</Link>
           {/* Log In */}
         </button>
         <button className='login-button'>
-          <Link to='/doctor'>Doctor</Link>
+          <Link to='/doctorlogin'>Doctor</Link>
         </button>
         <button className='login-button'>
-          <Link to='/pharmacy'>Pharmacy</Link>
+          <Link to='/pharmacylogin'>Pharmacy</Link>
         </button>
       </div>
     </div>
