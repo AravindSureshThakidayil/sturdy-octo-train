@@ -4,7 +4,7 @@ import "../styles/receptionist.css";
 import { ReactDialogBox } from 'react-js-dialog-box';
 import 'react-js-dialog-box/dist/index.css';
 import db from "../firebase_config.jsx";
-import { collection, doc, setDoc, getDocs, deleteDoc } from 'firebase/firestore';
+import { collection, doc, setDoc, getDocs, deleteDoc, query, where, getCountFromServer } from 'firebase/firestore';
 
 const ReceptionistPage = () => {
   const docRef = collection(db, "patients");
@@ -13,6 +13,7 @@ const ReceptionistPage = () => {
   const [currentPatient, setCurrentPatient] = useState({ id: 0, name: '', dob: '', gender: '', contact: '' });
   const [isEditing, setIsEditing] = useState(false);
   const [isDialogBox, setDialogBox] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     getPatientsFromDb();
@@ -40,8 +41,7 @@ const ReceptionistPage = () => {
   const modifyPatientInDb = async () => {
     let docid = currentPatient.id;
     if (!isEditing) {
-      const newDocRef = doc(docRef); // Automatically generated unique ID
-      docid = newDocRef.id;
+      docid = ((await getCountFromServer(collection(db, "patients"))).data().count).toString();
     }
     await setDoc(doc(db, "patients", docid), {
       patient_date_registration: Date.now(),
@@ -89,6 +89,36 @@ const ReceptionistPage = () => {
     if (window.confirm("You are about to delete a patient's record from the database. This can't be undone.")) {
       await deleteDoc(doc(db, "patients", id));
       getPatientsFromDb();
+    }
+  };
+
+  const handleSearchChange = async (e) => {
+    const { name, value } = e.target;
+    setSearchQuery(value);
+    if (searchQuery == "") {
+      getPatientsFromDb();
+    }
+  };
+
+  const searchName = async () => {
+    if (searchQuery == "") {
+      getPatientsFromDb();
+    } else {
+      const queryRef = query(collection(db, "patients"), where(
+        "patient_name", "==", searchQuery
+      ))
+      const queryDocs = await getDocs(queryRef);
+      let patients = [];
+      queryDocs.forEach((doc) => {
+        patients = [...patients, {
+          id: doc.id,
+          name: doc.data().patient_name,
+          dob: doc.data().patient_dob,
+          gender: doc.data().patient_sex,
+          contact: doc.data().patient_contact || '0000'
+        }];
+      });
+      setPatients(patients);
     }
   };
 
@@ -179,6 +209,11 @@ const ReceptionistPage = () => {
           </ReactDialogBox>}
         <section className="patient-list">
           <h2>Patient List</h2>
+          <input type="search" className="patient-search" placeholder="Search for a patient by name..."
+          onChange={handleSearchChange}>
+
+          </input>
+          <button className="patient-search-submit" onClick={searchName}>Search</button>
           <table>
             <thead>
               <tr>
