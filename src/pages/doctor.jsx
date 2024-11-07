@@ -42,7 +42,7 @@ const DoctorDashboard = () => {
             </header>
             <main>
                 <section className="patient-search">
-                    <h2>Enter Patient ID</h2>
+                    <h2>Enter Patient name</h2>
                     <form onSubmit={handlePatientSearch}>
                         <div className="form-group">
                             <input

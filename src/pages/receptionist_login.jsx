@@ -1,7 +1,30 @@
 import React, { useState } from 'react';
+import { getAuth } from "firebase/auth";
+import {Navigate} from "react-router-dom"
+import auth from "../firebase_config"
+import { signInWithEmailAndPassword } from "firebase/auth";
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const initiateLogIn = () => {
+    // let email = document.getElementById("email").value
+    // let password = document.getElementById("password").value
+    const auth = getAuth()
+    signInWithEmailAndPassword(auth, email, password)
+  .then((userCredential) => {
+    // Signed in 
+    const user = userCredential.user;
+    window.open("/reception")
+  })
+  .catch((error) => {
+    const errorCode = error.code;
+    const errorMessage = error.message;
+  });
+
+  };
 
   return (
     <div className="login-pagee">
@@ -26,7 +49,7 @@ const Login = () => {
                   <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
                   <polyline points="22,6 12,13 2,6"></polyline>
                 </svg>
-                <input id="email" type="email" placeholder="Enter your email" />
+                <input id="email" type="email" value={email} onInput={(e) => setEmail(e.target.value)} placeholder="Enter your email" />
               </div>
             </div>
             <div className="input-group">
@@ -40,6 +63,7 @@ const Login = () => {
                   id="password"
                   type={showPassword ? "text" : "password"}
                   placeholder="Enter your password"
+                  value={password} onInput={(e) => setPassword(e.target.value)}
                 />
                 <button
                   type="button"
@@ -63,7 +87,7 @@ const Login = () => {
           </form>
         </div>
         <div className="card-footer">
-          <button className="login-buttone">Log In</button>
+          <button className="login-buttone" onClick={initiateLogIn}>Log In</button>
           
         </div>
       </div>

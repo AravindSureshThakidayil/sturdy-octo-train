@@ -29,10 +29,10 @@ const Landing = () => {
           {/* Log In */}
         </button>
         <button className='login-button'>
-          <Link to='/doctorlogin'>Doctor</Link>
+          <Link to='/doctor'>Doctor</Link>
         </button>
         <button className='login-button'>
-          <Link to='/pharmacylogin'>Pharmacy</Link>
+          <Link to='/pharmacy'>Pharmacy</Link>
         </button>
       </div>
     </div>
